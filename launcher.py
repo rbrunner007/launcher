@@ -35,7 +35,7 @@ if __name__ == "__main__":
         for ip in ips:
             for Exploit, port, name in exploit_list:
                 t = Thread(
-                    name="Port "+str(port),
+                    name=name+ " against " + ip,
                     target=launch_exploit,
                     args=(Exploit, ip, port, name, debug))
                 t.start()
