@@ -8,29 +8,24 @@ from threading import Thread
 
 debug = True
 round_time_in_seconds = 10
-exit_file = 'exit.txt'
-exploit_list = [(ExploitTest, 1337, "Exploit Test"), (NewExploit, 1338, "New Exploit")]
 
-def exit_test():
-    #if the exit file is ever not empty, exit all threads.
-    with open(exit_file, 'rt') as f:
-        if f.read().strip() != '':
-            _exit(1)
+#exploit list in format (ExploitClass, exploit_port, exploit_name)
+exploit_list = [
+    (ExploitTest, 1337, "Exploit Test"),
+    (NewExploit, 1338, "New Exploit")
+]
 
-def summit_flag(flag):
-    #write some code to connect to the flag server and summit.
+def submit_flag(flag):
+    #write some code to connect to the flag server and summit your flags.
     print(flag)
 
 def launch_exploit(Exploit, ip, port, name, debug):
     new_exploit = Exploit(ip, port, name, debug)
     flag = new_exploit.get_flag()
-    summit_flag(flag)
+    submit_flag(flag)
 
 if __name__ == "__main__":
     print("[*] Starting Launcher")
-    #write the exit file
-    with open(exit_file, 'wt') as f:
-        f.write('\n')
     #get the list of ips
     with open('ips.txt', 'rt') as f:
         ips = f.read().strip().split('\n')
