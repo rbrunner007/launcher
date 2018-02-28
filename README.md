@@ -14,6 +14,6 @@ These new classes can either be inside the Exploit.py file or new stand alone cl
 Finally, you need to write your own submit_flag() function in launcher.py. This function will be called after every exploit. If necessary, you can include arguments to this function if the submission engine requires additional service specific information.
 
 ### TODO
-Blacklist certain teams on certain ports
-Enable ability to add an exploit without restarting the launcher
-Error handling for bad connections
+* Blacklist certain teams on certain ports
+* Enable ability to add an exploit without restarting the launcher
+* Error handling for bad connections
