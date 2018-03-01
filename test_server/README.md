@@ -6,6 +6,6 @@ The main file is the server.py file that utilizes the Service.py Class file. The
 
 The Service Class files are responsible for replicating the functionality of an individual service included the ability to handle incoming threaded connections.
 
-To run, you need to update the server.py file. In particular, you need to update the teams array with a tuple for each team that includes the team's name (string), directory (string that will be created if it does not exist), auth_string (password to access services if required), base_port (int). The base_port is generally a 100 port range per team). You also need to update the service_list array with a tuple that is the ServiceClass, individual port (int), and service name for each service.
+To run, you need to update the server.py file. In particular, you need to update the teams array with a tuple for each team that includes the team's name (string), directory (string that will be created if it does not exist), auth_string (password to access services if required), base_port (int). The base_port is generally a 100 port range per team. You also need to update the service_list array with a tuple that is the ServiceClass, individual port (int), and service name for each service.
 
 ### TODO
