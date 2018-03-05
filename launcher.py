@@ -5,16 +5,25 @@ from os import _exit
 from os import listdir
 from threading import Thread
 from random import shuffle
-from Exploit import Exploit
 from pydoc import locate
+import socket
+
+from Exploit import Exploit
 
 DEBUG = True
 ROUND_TIME_IN_SECONDS = 10
 CHAFF_TO_REAL_RATIO = 20
+VERIFICATION_SERVER = "127.0.0.1"
+VERIFICATION_PORT = 1337
 
 def submit_flag(flag):
     # write some code to connect to the flag server and summit your flags.
     print("[+] Submitting: " + flag)
+
+    # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    #     s.connect((VERIFICATION_SERVER, VERIFICATION_PORT))
+    #     s.send(flag.encode())
+    #     print(s.recv(1024))
 
 def launch_exploit(exploit, ip, DEBUG):
     new_exploit = exploit(ip, DEBUG)
@@ -58,6 +67,9 @@ if __name__ == "__main__":
                             target=launch_exploit,
                             args=(exploit, ip, DEBUG))
                     t.start()
+                except ConnectionRefusedError:
+                    print("[!] Connection Refused to " + ip)
+                    pass
                 except AttributeError:
                     pass
         sleep(ROUND_TIME_IN_SECONDS)
