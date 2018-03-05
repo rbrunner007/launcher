@@ -5,6 +5,8 @@ A better although slightly more complicated launcher can be found here:
 [Samurai's Shuriken](https://github.com/samuraictf/shuriken-framework)
 
 ### USAGE
+`$ launcher.py` or `$ python3 launcher.py`
+
 To use this launcher, you need a newline separated list of IP addresses that you want to attack. This list should go in ips.txt.
 
 For each service, you need to create a new class that extends the Exploit() class. This class takes an IP address to run the script against. Inside this class, you need to write your own get_flag() function that returns the flag after exploiting the service, as well as a send_chaff() function that creates meaningless network traffic to throw off the defenders. 
