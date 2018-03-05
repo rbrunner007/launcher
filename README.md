@@ -18,4 +18,4 @@ Finally, you need to write your own submit_flag() function in launcher.py. This 
 ### TODO
 * Blacklist certain teams on certain ports
 * Make a config file
-
+* Logging and Daemonizing

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from time import sleep
-from os import _exit
 from os import listdir
 from threading import Thread
 from random import shuffle
@@ -12,7 +11,8 @@ from Exploit import Exploit
 
 DEBUG = True
 ROUND_TIME_IN_SECONDS = 10
-CHAFF_TO_REAL_RATIO = 20
+# read as: 1 real exploit to XX chaff
+CHAFF_TO_REAL_RATIO = 20 
 VERIFICATION_SERVER = "127.0.0.1"
 VERIFICATION_PORT = 1337
 
@@ -34,8 +34,11 @@ def launch_exploit(exploit, ip, DEBUG):
     # CHAFF_TO_REAL_RATIO so big it takes longer than a round
     for value in chaff_array:
         if value:
-            flag = new_exploit.get_flag()
-            submit_flag(flag)
+            try:
+                flag = new_exploit.get_flag()
+                submit_flag(flag)
+            except AttributeError as a:
+                print("[!] Failed to run exploit")
         else:
             new_exploit.send_chaff()
 
@@ -50,7 +53,7 @@ if __name__ == "__main__":
         
     # launch the threaded exploits
     while True:
-        # create a (empty) list of all Exploits found in the exploit/ directory
+        # create a list of all Exploits found in the exploit/ directory
         exploit_list = []
         for exploit in listdir("./exploits"):
             if exploit[-3:] == ".py" and exploit != "__init__.py":
@@ -63,14 +66,15 @@ if __name__ == "__main__":
                 try:
                     print("[+] Launching " + exploit.__name__ + " against " + ip)
                     t = Thread(
-                            name=exploit.__name__ + ":" + str(ip),
+                            name=exploit.__name__ + " : " + str(ip),
                             target=launch_exploit,
                             args=(exploit, ip, DEBUG))
                     t.start()
                 except ConnectionRefusedError:
-                    print("[!] Connection Refused to " + ip)
+                    print("[!] Connection Refused by " + ip)
                     pass
                 except AttributeError:
+                    print("[!] Cannot connect to " + ip)
                     pass
         sleep(ROUND_TIME_IN_SECONDS)
         print("[*] Round Complete. \n")
