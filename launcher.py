@@ -2,20 +2,23 @@
 
 from time import sleep
 from os import listdir
+import sys
 from threading import Thread
 from random import shuffle
 from pydoc import locate
 import socket
+import importlib
+from datetime import datetime
 
 from Exploit import Exploit
 
-DEBUG = True
-VERBOSE = True
+DEBUG = False
+VERBOSE = False
 ROUND_TIME_IN_SECONDS = 10
 # read as: 1 real exploit to XX chaff
 CHAFF_TO_REAL_RATIO = 20 
-VERIFICATION_SERVER = "127.0.0.1"
-VERIFICATION_PORT = 1337
+VERIFICATION_SERVER = "10.4.85.9"
+VERIFICATION_PORT = 31337
 
 IP_FILE = 'ips.txt'
 BLACKLIST_FILE = 'blacklist.txt'
@@ -27,19 +30,14 @@ class Launcher:
         # write some code to connect to the flag server and summit your flags.
         print("[+] Submitting: " + flag)
 
-        # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        #     s.connect((VERIFICATION_SERVER, VERIFICATION_PORT))
-        #     s.send(flag.encode())
-        #     print(s.recv(1024))
-        if "" in response:
-            # Success
-            return None
-        else:
-            # Failure
-            return None
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((VERIFICATION_SERVER, VERIFICATION_PORT))
+            s.send(flag.encode())
+            print(s.recv(1024))
 
     def launch_exploit(self, exploit, ip, DEBUG):
-        new_exploit = exploit(ip, DEBUG)
+        exploit_class = getattr(exploit, "Main")
+        new_exploit = exploit_class(ip, DEBUG)
         chaff_array = [False]*CHAFF_TO_REAL_RATIO
         chaff_array.append(True)
         shuffle(chaff_array)
@@ -49,7 +47,7 @@ class Launcher:
             if value:
                 try:
                     flag = new_exploit.get_flag()
-                    submit_flag(flag)
+                    self.submit_flag(flag)
                 except AttributeError as a:
                     print("[!] Failed to run exploit")
             else:
@@ -85,17 +83,17 @@ class Launcher:
 
 
     def load_exploits(self, exploit_dir):
-        # create a list of all Exploits found in the exploit/ directory
+        # create a list of all Exploits found in the exploits/ directory
         exploit_list = []
         for exploit in listdir("./" + exploit_dir):
             if exploit[-3:] == ".py" and exploit != "__init__.py":
-                exploit_list.append(locate(exploit_dir + "." + exploit[:-3] + \
-                                        "." + exploit[:-3]))
+                exploit_list.append(locate(exploit_dir + "." + exploit[:-3]))
 
         print("[*] " + str(len(exploit_list)) + " exploits found...")
         if VERBOSE:
             for ex in exploit_list:
-                print("   [E] " + ex.__name__)
+                if ex is not None:
+                    print("   [E] " + ex.__name__)
 
         return exploit_list
 
@@ -105,12 +103,14 @@ class Launcher:
 
         # launch the threaded exploits
         while True:
+            print("[T]" + datetime.now().isoformat())
             ips = self.load_ips(IP_FILE)
             blacklist = self.load_blacklist(BLACKLIST_FILE)
             exploit_list = self.load_exploits(EXPLOIT_DIR)
             for ip in ips:
                 if ip not in blacklist:
                     for exploit in exploit_list:
+                        importlib.reload(exploit)
                         print("[+] Launching " + exploit.__name__ + " against " + ip)
                         try:
                             t = Thread(
@@ -121,9 +121,9 @@ class Launcher:
                         except ConnectionRefusedError:
                             print("[!] Connection Refused by " + ip)
                             pass
-                        except AttributeError:
-                            print("[!] Cannot connect to " + ip)
-                            pass
+                        # except AttributeError:
+                        #     print("[!] Cannot connect to " + ip)
+                        #     pass
             sleep(ROUND_TIME_IN_SECONDS)
             print("[*] Round Complete. \n")
 
