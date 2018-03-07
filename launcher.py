@@ -13,7 +13,7 @@ from datetime import datetime
 from Exploit import Exploit
 
 DEBUG = False
-VERBOSE = False
+VERBOSE = True
 ROUND_TIME_IN_SECONDS = 10
 # read as: 1 real exploit to XX chaff
 CHAFF_TO_REAL_RATIO = 20 
@@ -57,7 +57,7 @@ class Launcher:
     def load_ips(self, ip_file):
         #get the list of ips
         with open(ip_file, 'rt') as f:
-            ips = f.read().strip().split('\n')
+            ips = set(f.read().strip().split('\n'))
 
         print("[*] " + str(len(ips)) + " IPs found...")
         if VERBOSE:
@@ -69,15 +69,16 @@ class Launcher:
 
     def load_blacklist(self, blacklist_file):
         with open(blacklist_file, 'rt') as b:
-            blacklist = b.read().strip().split('\n')
+            blacklist = set(b.read().strip().split('\n'))
 
-        if blacklist[0] == '':
-            blacklist = []
+        if not blacklist:
+            blacklist = set()
         else:
-            print("[*] Blacklisting " + str(len(blacklist)) + " IPs: ")
+            print("[*] Blacklisting " + str(len(blacklist) - 1) + " IPs: ")
             if VERBOSE:
                 for i in blacklist:
-                    print("   [B] " + str(i))
+                    if i:
+                        print("   [B] " + str(i))
 
         return blacklist
 
@@ -103,7 +104,7 @@ class Launcher:
 
         # launch the threaded exploits
         while True:
-            print("[T]" + datetime.now().isoformat())
+            print("[T] " + datetime.now().isoformat())
             ips = self.load_ips(IP_FILE)
             blacklist = self.load_blacklist(BLACKLIST_FILE)
             exploit_list = self.load_exploits(EXPLOIT_DIR)
@@ -121,9 +122,9 @@ class Launcher:
                         except ConnectionRefusedError:
                             print("[!] Connection Refused by " + ip)
                             pass
-                        # except AttributeError:
-                        #     print("[!] Cannot connect to " + ip)
-                        #     pass
+                        except AttributeError:
+                            print("[!] Cannot connect to " + ip)
+                            pass
             sleep(ROUND_TIME_IN_SECONDS)
             print("[*] Round Complete. \n")
 
